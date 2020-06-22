@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>Demystifying Mixins</title>
+
+        <link rel="stylesheet" href="dist/reset.css">
+        <link rel="stylesheet" href="dist/reveal.css">
+        <link rel="stylesheet" href="dist/theme/black.css" id="theme">
+
+        <!-- Theme used for syntax highlighted code -->
+        <link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+
+        <style>
+            .reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5 {
+              text-transform: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h2>Demystifying Mixins</h2>
+                </section>
+       
+                <section>
+                    <h4>Overview: multiple inheritance</h4>
+                    <img src="https://media.giphy.com/media/3o6Mbk7C7HVuhyqX3G/source.gif" style="width: 70%"/>
+                </section>
+      
+                <section>
+                    <h2>super()</h2>
+                    <pre><code data-trim data-noescape style="max-height:700px">
+                        class Student:
+                            def print_label(self):
+                                print("I am a student")
+     
+                        class Faculty:
+                            def print_label(self):
+                                print("I am faculty")
+                                super().print_label()
+    
+                        class TA(Faculty, Student):
+                            def print_label(self):
+                                print("I am a TA!")
+                                super().print_label()
+   
+                        TA().print_label()
+  
+                        # Output:
+                        # I am a TA!
+                        # I am faculty
+                        # I am a student
+                    </code></pre>
+                </section>
+ 
+                <section>
+                    <h2>super() confusing</h2>
+                    <pre><code data-trim data-noescape style="max-height:700px">
+                        class Student:
+                            def print_label(self):
+                                print("I am a student")
+     
+                        class Faculty:
+                            def print_label(self):
+                                print("I am faculty")
+                                # super().print_label()
+    
+                        class TA(Faculty, Student):
+                            def print_label(self):
+                                print("I am a TA!")
+                                super().print_label()
+   
+                        TA().print_label()
+  
+                        # Output:
+                        # I am a TA!
+                        # I am faculty
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h2>MRO : Method Resolution Order</h2>
+                    <img src="https://i.stack.imgur.com/7y8EA.png" style="width: 70%"/>
+                </section>
+
+                <section>
+                    <h2>The Diamond Problem</h2>
+                    <img src="https://media.geeksforgeeks.org/wp-content/uploads/diamondproblem.png" style="width: 70%"/>
+                </section>
+
+                <section>
+                    <div>For more information on Super the Python's MRO,</div>
+                    <div>I suggest reading RealPython's</div>
+                    <a href="https://realpython.com/python-super/">Supercharge Your Classes With Python super()</a>
+                </section>
+
+                <section>
+                    <h2>Composition vs Inheritance</h2>
+                    <img src="https://3.bp.blogspot.com/-EKzD6X3YNV8/VWxcl3JsJtI/AAAAAAAAC1w/q8oZ4gXUc_M/s1600/Difference%2Bbetween%2BComposition%2Bvs%2BInheritance%2Bin%2BJava.png" style="width: 70%"/>
+                </section>
+
+                <section>
+                    <div>Gang of Four's Design Patterns:</div>
+                    <blockquote style="width:90%">Favor object composition over class inheritance</blockquote>
+                </section>
+
+                <section>
+                    <h2>What is a mixin?</h2>
+                    <ul>
+                      <li>A pattern for using multiple inheriance for composition</li>
+                      <li>An plain object class (i.e. no parent class)</li>
+                      <li>Typically doesn't do anything on its own</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h4>Example mixin:</h4>
+                    <pre><code data-trim data-noescape style="max-height:700px">
+                        class Recipe(object):
+                            ratio = 1
+
+                            def __init__(self):
+                                print(f"I need {self.ratio} servings")
+
+                        class DoubleMixin(object):
+                            ratio = 2
+
+                        class LargeRecipe(<mark>DoubleMixin</mark>, Recipe):
+                            pass
+
+                        Recipe()
+                        LargeRecipe()
+
+                        # Output:
+                        # I need 1 servings
+                        # I need 2 servings
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h4>Typical use case #1: define/override class variables</h4>
+                    <pre><code data-trim data-noescape style="max-height:700px">
+                        class TimestampMixin(object):
+                            created_on = db.Column(db.TIMESTAMP, oncreate=datetime.now)
+                            modified_on = db.Column(db.TIMESTAMP, onupdate=datetime.now)
+
+                        class User(<mark>TimestampMixin</mark>, db.Model):
+                            username = db.Column(db.String(250), unique=True)
+                            password = db.Column(db.String(250))
+                            email = db.Column(db.String(250))
+
+                        class Address(<mark>TimestampMixin</mark>, db.Model):
+                            id = db.Column(db.Integer, primary_key=True)
+                    </code></pre>
+                </section>
+            
+                <section>
+                    <h4>Typical use case #2: modify class functions</h4>
+                    <pre><code data-trim data-noescape style="max-height:700px">
+                        class LogInitMixin(object):
+                            def __init__(self, *args, **kwargs):
+                                print(f"activating {self.__class__.__name__}")
+                                super().__init__(*args, **kwargs)
+                        
+                        class Student(<mark>LogInitMixin</mark>, db.Model):
+                            username = db.Column(db.String(250), unique=True)
+                        
+                        class Recipe(LogInitMixin):
+                            pass
+                        
+                        Student()
+                        Website()
+                        
+                        # Output:
+                        # activating Student
+                        # activating Website
+                    </code></pre>
+                </section>
+                        <!--
+                          a pattern for using multiple inheriance to do composition
+            
+                          a simple object class that doesn't do anything on its own
+            
+                          use mixins to define class variables (sqlalchemy timestampmixin)
+            
+                          use mixins to override parent functions (with or without super)
+                            - speak loudly mixin
+                            - speechlessmixin
+            
+                          when should i use mixins
+                        -->
+
+                <section>
+                    <h2>Mixins vs Decorators</h2>
+                    <h4>login_required vs LoginRequiredMixin</h4>
+                </section>
+            
+                <section>
+                    <h2>Mixins vs Decorators</h2>
+                    <h4>login_required vs LoginRequiredMixin</h4>
+                </section>
+            
+            </div>
+        </div>
+
+        <script src="dist/reveal.js"></script>
+        <script src="plugin/notes/notes.js"></script>
+        <script src="plugin/markdown/markdown.js"></script>
+        <script src="plugin/highlight/highlight.js"></script>
+        <script>
+            // More info about initialization & config:
+            // - https://revealjs.com/initialization/
+            // - https://revealjs.com/config/
+            Reveal.initialize({
+                hash: true,
+
+                // Learn about plugins: https://revealjs.com/plugins/
+                plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+            });
+        </script>
+    </body>
+</html>
