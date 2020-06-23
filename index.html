@@ -17,6 +17,15 @@
             .reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5 {
               text-transform: none;
             }
+
+            .colcontainer {
+              display: flex;
+            }
+
+            .col {
+              flex: 1;
+              max-height: 700px;
+            }
         </style>
     </head>
     <body>
@@ -34,62 +43,62 @@
                 <section>
                     <h2>super()</h2>
                     <pre><code data-trim data-noescape style="max-height:700px">
-                        class Student:
-                            def print_label(self):
-                                print("I am a student")
-     
-                        class Faculty:
-                            def print_label(self):
-                                print("I am faculty")
-                                super().print_label()
-    
-                        class TA(Faculty, Student):
-                            def print_label(self):
-                                print("I am a TA!")
-                                super().print_label()
-   
-                        TA().print_label()
-  
+                        class Residence:
+                            def __init__(self):
+                                print("I am a residence")
+
+                        class HighRise:
+                            def __init__(self):
+                                print("I am a high rise")
+                                super().__init__()
+
+                        class ApartmentBuilding(HighRise, Residence):
+                            def __init__(self):
+                                print("I am an apartment")
+                                super().__init__()
+
+                        ApartmentBuilding()
+
                         # Output:
-                        # I am a TA!
-                        # I am faculty
-                        # I am a student
+                        # I am an apartment
+                        # I am a high rise
+                        # I am a residence
                     </code></pre>
                 </section>
  
                 <section>
                     <h2>super() confusing</h2>
                     <pre><code data-trim data-noescape style="max-height:700px">
-                        class Student:
-                            def print_label(self):
-                                print("I am a student")
-     
-                        class Faculty:
-                            def print_label(self):
-                                print("I am faculty")
-                                # super().print_label()
-    
-                        class TA(Faculty, Student):
-                            def print_label(self):
-                                print("I am a TA!")
-                                super().print_label()
-   
-                        TA().print_label()
-  
+                        class Residence:
+                            def __init__(self):
+                                print("I am a residence")
+
+                        class HighRise:
+                            def __init__(self):
+                                print("I am a high rise")
+                                # super().__init__()
+
+                        class ApartmentBuilding(HighRise, Residence):
+                            def __init__(self):
+                                print("I am an apartment")
+                                super().__init__()
+
+                        ApartmentBuilding()
+
                         # Output:
-                        # I am a TA!
-                        # I am faculty
+                        # I am an apartment
+                        # I am a high rise
                     </code></pre>
                 </section>
 
                 <section>
                     <h2>MRO : Method Resolution Order</h2>
-                    <img src="https://i.stack.imgur.com/7y8EA.png" style="width: 70%"/>
+                    <img src="https://i.stack.imgur.com/7y8EA.png" style="width: 90%"/>
                 </section>
 
                 <section>
                     <h2>The Diamond Problem</h2>
-                    <img src="https://media.geeksforgeeks.org/wp-content/uploads/diamondproblem.png" style="width: 70%"/>
+                    <img src="img/diamond.png" style="width: 50%"/>
                 </section>
 
                 <section>
@@ -110,7 +119,7 @@
 
                 <section>
                     <h2>What is a mixin?</h2>
-                    <ul>
+                    <ul style="font-size: .9em">
                       <li>A pattern for using multiple inheriance for composition</li>
                       <li>An plain object class (i.e. no parent class)</li>
                       <li>Typically doesn't do anything on its own</li>
@@ -118,92 +127,221 @@
                 </section>
 
                 <section>
+		    <h2>A mixin is just a class.</h2>
+                </section>
+
+                <section>
                     <h4>Example mixin:</h4>
                     <pre><code data-trim data-noescape style="max-height:700px">
-                        class Recipe(object):
-                            ratio = 1
+                        class Building(object):
+                            lock = MetalKey()
 
-                            def __init__(self):
-                                print(f"I need {self.ratio} servings")
+                            def unlock(self):
+                                self.lock.attempt_unlock()
 
-                        class DoubleMixin(object):
-                            ratio = 2
+                        class KeyCardMixin(object):
+                            lock = KeyCard()
 
-                        class LargeRecipe(<mark>DoubleMixin</mark>, Recipe):
+                        class ExcellaHQ(<mark>KeyCardMixin</mark>, Building):
                             pass
-
-                        Recipe()
-                        LargeRecipe()
-
-                        # Output:
-                        # I need 1 servings
-                        # I need 2 servings
                     </code></pre>
                 </section>
 
                 <section>
-                    <h4>Typical use case #1: define/override class variables</h4>
+                    <h4>Common use case #1: define/override class variables</h4>
+                    <div class="colcontainer" style="font-size: 2.1rem">
+                    <div class="col">
+                        With Mixins
+                        <pre style="width: 460px"><code data-trim data-noescape>
+                            class Building(object):
+                                lock = MetalKey()
+
+                                def unlock(self):
+                                    self.lock.attempt_unlock()
+
+                            class KeyCardMixin(object):
+                                lock = KeyCard()
+
+                            class Home(Building):
+                                pass
+
+                            class ExcellaHQ(<mark>KeyCardMixin</mark>, Building):
+                                pass
+                        </code></pre>
+                    </div>
+                    <div class="col">
+                        No Mixins
+                        <pre style="width: 400px"><code class="python" data-trim data-noescape>
+                            class Building(object):
+                                lock = MetalKey()
+
+                                def unlock(self):
+                                    self.lock.attempt_unlock()
+
+                            class Home(Building):
+                                pass
+
+                            class ExcellaHQ(Building):
+                                lock = MetalKey()
+                        </code></pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h4>Real life example: SQLAlchemy</h4>
                     <pre><code data-trim data-noescape style="max-height:700px">
                         class TimestampMixin(object):
-                            created_on = db.Column(db.TIMESTAMP, oncreate=datetime.now)
-                            modified_on = db.Column(db.TIMESTAMP, onupdate=datetime.now)
+                            created_on = Column(TIMESTAMP, oncreate=datetime.now)
+                            modified_on = Column(TIMESTAMP, onupdate=datetime.now)
 
-                        class User(<mark>TimestampMixin</mark>, db.Model):
-                            username = db.Column(db.String(250), unique=True)
-                            password = db.Column(db.String(250))
-                            email = db.Column(db.String(250))
+                        class Building(<mark>TimestampMixin</mark>, Model):
+                            name = Column(String(250), primary_key=True)
+                            city = Column(String(250))
 
-                        class Address(<mark>TimestampMixin</mark>, db.Model):
-                            id = db.Column(db.Integer, primary_key=True)
+                        class Unlock(<mark>TimestampMixin</mark>, Model):
+                            id = Column(Integer, primary_key=True)
+                            building = Column(Integer, ForeignKey("building.name"))
                     </code></pre>
                 </section>
-            
-                <section>
-                    <h4>Typical use case #2: modify class functions</h4>
-                    <pre><code data-trim data-noescape style="max-height:700px">
-                        class LogInitMixin(object):
-                            def __init__(self, *args, **kwargs):
-                                print(f"activating {self.__class__.__name__}")
-                                super().__init__(*args, **kwargs)
-                        
-                        class Student(<mark>LogInitMixin</mark>, db.Model):
-                            username = db.Column(db.String(250), unique=True)
-                        
-                        class Recipe(LogInitMixin):
-                            pass
-                        
-                        Student()
-                        Website()
-                        
-                        # Output:
-                        # activating Student
-                        # activating Website
-                    </code></pre>
-                </section>
-                        <!--
-                          a pattern for using multiple inheriance to do composition
-            
-                          a simple object class that doesn't do anything on its own
-            
-                          use mixins to define class variables (sqlalchemy timestampmixin)
-            
-                          use mixins to override parent functions (with or without super)
-                            - speak loudly mixin
-                            - speechlessmixin
-            
-                          when should i use mixins
-                        -->
 
                 <section>
-                    <h2>Mixins vs Decorators</h2>
-                    <h4>login_required vs LoginRequiredMixin</h4>
+                    <h4>Common use case #2: modify class functions</h4>
+                    <div class="colcontainer" style="font-size: 1.85rem">
+                    <div class="col">
+                        With Mixins
+                        <pre style="width: 500px"><code data-trim data-noescape>
+                            class Building(object):
+                                def unlock(self):
+                                    print("unlocking!")
+
+                            class KnockFirstMixin(object):
+                                def unlock(self):
+                                    print("knock knock")
+                                    super().unlock()
+
+                            class GreetReceptionistMixin(object):
+                                def unlock(self):
+                                    super().unlock()
+                                    print("good morning!")
+
+                            class ParentsHouse(<mark>KnockFirstMixin</mark>, Building):
+                                pass
+
+                            class ExcellaHQ(<mark>GreetReceptionistMixin</mark>, Building):
+                                pass
+                        </code></pre>
+                    </div>
+                    <div class="col">
+                        No Mixins
+                        <pre style="width: 350px"><code class="python" data-trim data-noescape>
+                            class Building(object):
+                                knock_first = False
+                                greet_receptionist = False
+
+                                def unlock(self):
+                                    if knock_first:
+                                        print("knock knock")
+
+                                    print("unlocking!")
+
+                                    if greet_receptionist:
+                                        print("good morning!")
+
+
+                            class ParentsHouse(Building):
+                                knock_first = True
+
+                            class ExcellaHQ(Building):
+                                greet_receptionist = True
+                        </code></pre>
+                    </div>
+                </section>
+                <section style="width: 1040px">
+                    <h4>Real life example: Django</h4>
+                    <pre><code data-trim data-noescape style="max-height:700px; font-size: .9em">
+                        class LoginRequiredMixin(object):
+                            """Verify that the current user is authenticated."""
+                            def dispatch(self, request, *args, **kwargs):
+                                if not request.user.is_authenticated:
+                                    return self.handle_no_permission()
+                                return super().dispatch(request, *args, **kwargs)
+
+                            def handle_no_permission(self):
+                                if self.raise_exception or self.request.user.is_authenticated:
+                                    raise PermissionDenied(self.get_permission_denied_message())
+                                return redirect_to_login(
+                                    self.request.get_full_path(),
+                                    self.get_login_url(),
+                                    self.get_redirect_field_name()
+                                )
+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>When to use the mixin pattern</h3>
+                    <br>
+		    <ul>
+		      <li>Your class has a lot of optional features</li>
+		      <li>You want to use one particular feature in a lot of different classes</li>
+		    </ul>
+                </section>
+
+                <section>
+                    <h3>When to NOT use the mixin pattern?</h3>
+		    <br>
+		    <ul>
+		      <li>
+		        Mixins should be optional, i.e. not 100% in use and not 0% in use.
+		      </li>
+		      <li>
+		        If you can't think of a use case for the mixin
+		        to be removed, it shouldn't be a mixin.
+		      </li>
+		    </ul>
+                </section>
+
+                <section>
+                    <h2>Mixins sound a lot like @decorators</h2>
+                </section>
+
+                <section>
+                    <h2>Analogous Pairs</h2>
+                    <br>
+                    <p>
+                    mixins are to classes
+                    <br>as<br>
+                    decorators are to functions
+                    </p>
                 </section>
             
                 <section>
-                    <h2>Mixins vs Decorators</h2>
-                    <h4>login_required vs LoginRequiredMixin</h4>
+                    <div>
+                        <div>
+                            Class-based views 
+                            <pre style="width: 700px"><code data-trim data-noescape class="python">
+                                from django.contrib.auth.mixins \
+                                    import LoginRequiredMixin
+
+                                class MyView(<mark>LoginRequiredMixin</mark>, View):
+                                    def get(self, request, *args, **kwargs):
+                                        return JsonResponse({"success": True})
+                            </code></pre>
+                        </div>
+                        <br>
+                        <div>
+                            Function-based views
+                            <pre style="width: 700px"><code data-trim data-noescape class="python">
+                                from django.contrib.auth.decorators \
+                                    import login_required
+
+                                <mark>@login_required()</mark>
+                                def my_view(request):
+                                    return JsonResponse({"success": True})
+                            </code></pre>
+                        </div>
+                    </div>
                 </section>
-            
             </div>
         </div>
 

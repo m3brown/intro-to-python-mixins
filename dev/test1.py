@@ -1,21 +1,20 @@
-class Student:
-    def print_label(self):
-        print("I am a student")
+class Residence:
+    def __init__(self):
+        print("I am a residence")
 
-class Faculty:
-    def print_label(self):
-        print("I am faculty")
-        super().print_label()
+class HighRise:
+    def __init__(self):
+        print("I am a high rise")
+        super().__init__()
 
-class TA(Faculty, Student):
+class ApartmentBuilding(HighRise, Residence):
+    def __init__(self):
+        print("I am an apartment")
+        super().__init__()
 
-    def print_label(self):
-        print("I am a TA!")
-        super().print_label()
-
-TA().print_label()
+ApartmentBuilding()
 
 # Output:
-# I am a TA!
-# I am faculty
-# I am a student
+# I am an apartment
+# I am a high rise
+# I am a residence

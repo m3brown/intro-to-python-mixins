@@ -1,17 +1,19 @@
-class LogInitMixin(object):
-    def __init__(self, *args, **kwargs):
-        print(f"activating {self.__class__.__name__}")
-        super().__init__(*args, **kwargs)
+class Building(object):
+    def unlock(self):
+        print("unlocking!")
 
-class Student(LogInitMixin):
+class KnockFirstMixin(object):
+    def unlock(self):
+        print("knock knock")
+        super().unlock()
+
+class GreetReceptionistMixin(object):
+    def unlock(self):
+        super().unlock()
+        print("good morning!")
+
+class ExcellaHQ(GreetReceptionistMixin, Building):
     pass
 
-class Website(LogInitMixin):
+class ParentsHouse(KnockFirstMixin, Building):
     pass
-
-Student()
-Website()
-
-# Output:
-# activating Student
-# activating Website

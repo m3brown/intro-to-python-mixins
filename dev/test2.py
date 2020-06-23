@@ -1,21 +1,11 @@
-class DoubleMixin(object):
-    ratio = 2
+class Building(object):
+    lock = MetalKey()
 
-class HalfMixin(object):
-    ratio = .5
+    def unlock(self):
+        self.lock.attempt_unlock()
 
-class Recipe(object):
-    ratio = 1
+class KeyCardMixin(object):
+    lock = KeyCard()
 
-    def __init__(self):
-        print(f"I need {self.ratio} servings")
-
-class LargeRecipe(DoubleMixin, Recipe):
+class ExcellaHQ(KeyCardMixin, Building):
     pass
-
-Recipe()
-LargeRecipe()
-
-# Output:
-# I need 1 servings
-# I need 2 servings
